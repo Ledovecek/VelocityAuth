@@ -1,5 +1,0 @@
-auth_servers:
-  - "lobby"
-
-lobby_servers:
-  - "lobby"
