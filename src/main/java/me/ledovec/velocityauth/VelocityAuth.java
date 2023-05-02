@@ -9,6 +9,8 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import me.ledovec.velocityauth.commands.LoginCommand;
 import me.ledovec.velocityauth.commands.RegisterCommand;
 import me.ledovec.velocityauth.events.PlayerListener;
+import me.ledovec.velocityauth.session.SessionFactory;
+import me.ledovec.velocityauth.session.SessionSecurity;
 import me.zort.sqllib.SQLConnectionBuilder;
 import me.zort.sqllib.SQLDatabaseConnection;
 import me.zort.sqllib.pool.SQLConnectionPool;
@@ -38,7 +40,7 @@ public class VelocityAuth {
         SQLConnectionBuilder template = SQLConnectionBuilder.of("localhost", 3306, "velocity_auth", "root", "");
 
         SQLConnectionPool.Options options = new SQLConnectionPool.Options();
-        options.setMaxConnections(10);
+        options.setMaxConnections(1000);
         options.setBorrowObjectTimeout(5000L);
         options.setBlockWhenExhausted(true);
 
@@ -48,9 +50,11 @@ public class VelocityAuth {
         if (!resource.connect()) {
             logger.error("Could not connect to the database!");
         }
+        SessionFactory.getInstance().clearAllSessions();
+        new SessionSecurity(proxyServer, this).begin();
         proxyServer.getEventManager().register(this, new PlayerListener());
-        proxyServer.getCommandManager().register("register", new RegisterCommand(), "reg");
-        proxyServer.getCommandManager().register("login", new LoginCommand(), "log");
+        proxyServer.getCommandManager().register("register", new RegisterCommand(proxyServer), "reg");
+        proxyServer.getCommandManager().register("login", new LoginCommand(proxyServer), "log");
     }
 
     public File getConfigFile() {
