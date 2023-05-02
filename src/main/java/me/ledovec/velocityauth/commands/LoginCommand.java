@@ -1,13 +1,14 @@
 package me.ledovec.velocityauth.commands;
 
-import com.google.inject.Inject;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import me.ledovec.velocityauth.VelocityAuth;
 import me.ledovec.velocityauth.constants.Strings;
+import me.ledovec.velocityauth.constants.Titles;
 import me.ledovec.velocityauth.security.Security;
+import me.ledovec.velocityauth.session.SessionFactory;
 import me.zort.sqllib.SQLDatabaseConnection;
 import me.zort.sqllib.api.data.Row;
 import net.kyori.adventure.text.Component;
@@ -16,6 +17,12 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 public class LoginCommand implements SimpleCommand {
+
+    private final ProxyServer proxyServer;
+
+    public LoginCommand(ProxyServer proxyServer) {
+        this.proxyServer = proxyServer;
+    }
 
     @Override
     public void execute(Invocation invocation) {
@@ -29,11 +36,14 @@ public class LoginCommand implements SimpleCommand {
                 try {
                     resource = VelocityAuth.connectionPool.getResource();
                     Optional<Row> result = resource.select("secret").from("player_credentials").where().isEqual("player", username).obtainOne();
+                    resource.close();
                     if (result.isPresent()) {
                         boolean match = Security.passwordsMatch(arguments[0], result.get().getString("secret"));
                         if (match) {
                             player.sendMessage(Component.text(Strings.PREFIX + "§aSuccessfully logged in!"));
-                            player.createConnectionRequest(new VelocityAuth().getProxyServer().getServer("lobby").get()).connect();
+                            Titles.sendRedirectTitle(player);
+                            SessionFactory.getInstance().createPlayerSession(player);
+                            player.createConnectionRequest(proxyServer.getServer("lobby").get()).connect();
                         } else {
                             player.sendMessage(Component.text(Strings.PREFIX + "§cIncorrect password!"));
                         }

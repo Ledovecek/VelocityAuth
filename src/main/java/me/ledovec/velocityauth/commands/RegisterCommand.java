@@ -3,9 +3,12 @@ package me.ledovec.velocityauth.commands;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.ProxyServer;
 import me.ledovec.velocityauth.VelocityAuth;
 import me.ledovec.velocityauth.constants.Strings;
+import me.ledovec.velocityauth.constants.Titles;
 import me.ledovec.velocityauth.security.Security;
+import me.ledovec.velocityauth.session.SessionFactory;
 import me.zort.sqllib.SQLDatabaseConnection;
 import me.zort.sqllib.api.data.QueryResult;
 import me.zort.sqllib.api.data.Row;
@@ -16,6 +19,11 @@ import java.util.Optional;
 
 public class RegisterCommand implements SimpleCommand {
 
+    private final ProxyServer proxyServer;
+
+    public RegisterCommand(ProxyServer proxyServer) {
+        this.proxyServer = proxyServer;
+    }
 
     @Override
     public void execute(Invocation invocation) {
@@ -32,8 +40,12 @@ public class RegisterCommand implements SimpleCommand {
                         if (result.isEmpty()) {
                             String secret = Security.hashPassword(arguments[0]);
                             QueryResult execute = resource.insert().into("player_credentials", "player", "secret").values(player.getUsername(), secret).execute();
+                            resource.close();
                             if (execute.isSuccessful()) {
                                 source.sendMessage(Component.text(Strings.PREFIX + "§aYou have been successfully registered."));
+                                Titles.sendRedirectTitle(player);
+                                SessionFactory.getInstance().createPlayerSession(player);
+                                player.createConnectionRequest(proxyServer.getServer("lobby").get()).connect();
                             }
                         } else {
                             player.sendMessage(Component.text(Strings.PREFIX + "You are already registered."));
