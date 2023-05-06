@@ -35,7 +35,7 @@ public class VelocityAuth {
     public static SQLConnectionPool connectionPool;
 
     @Subscribe
-    public void onProxyInitialization(ProxyInitializeEvent event) throws SQLException {
+    public void onProxyInitialization(ProxyInitializeEvent event) {
         configFile = new File("config.yml");
         SQLConnectionBuilder template = SQLConnectionBuilder.of("localhost", 3306, "velocity_auth", "root", "");
 
@@ -45,11 +45,7 @@ public class VelocityAuth {
         options.setBlockWhenExhausted(true);
 
         connectionPool = new SQLConnectionPool(template, options);
-        SQLDatabaseConnection resource = connectionPool.getResource();
 
-        if (!resource.connect()) {
-            logger.error("Could not connect to the database!");
-        }
         SessionFactory.getInstance().clearAllSessions();
         new SessionSecurity(proxyServer, this).begin();
         proxyServer.getEventManager().register(this, new PlayerListener());
