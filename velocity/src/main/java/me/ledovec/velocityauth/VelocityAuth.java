@@ -37,14 +37,14 @@ public class VelocityAuth {
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
         configFile = new File("config.yml");
-        SQLConnectionBuilder template = SQLConnectionBuilder.of("localhost", 3306, "velocity_auth", "root", "");
 
         SQLConnectionPool.Options options = new SQLConnectionPool.Options();
         options.setMaxConnections(1000);
         options.setBorrowObjectTimeout(5000L);
         options.setBlockWhenExhausted(true);
 
-        connectionPool = new SQLConnectionPool(template, options);
+        connectionPool = SQLConnectionBuilder.of("localhost", 3306, "velocity_auth", "root", "")
+                        .createPool(options);
 
         SessionFactory.getInstance().clearAllSessions();
         new SessionSecurity(proxyServer, this).begin();

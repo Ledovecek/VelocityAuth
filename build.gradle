@@ -19,7 +19,7 @@ subprojects {
     }
     dependencies {
         implementation("mysql:mysql-connector-java:8.0.33")
-        implementation("com.github.ZorTik:AdvancedSQLClient:0.6.0")
+        implementation("com.github.ZorTik:AdvancedSQLClient:0.6.1")
         implementation("com.github.Carleslc:Simple-YAML:1.8.4")
     }
     jar {
