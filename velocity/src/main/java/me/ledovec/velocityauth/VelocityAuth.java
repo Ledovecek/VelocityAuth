@@ -1,9 +1,8 @@
 package me.ledovec.velocityauth;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import me.ledovec.velocityauth.commands.LoginCommand;
@@ -12,14 +11,10 @@ import me.ledovec.velocityauth.events.PlayerListener;
 import me.ledovec.velocityauth.session.SessionFactory;
 import me.ledovec.velocityauth.session.SessionSecurity;
 import me.zort.sqllib.SQLConnectionBuilder;
-import me.zort.sqllib.SQLDatabaseConnection;
 import me.zort.sqllib.pool.SQLConnectionPool;
 import org.slf4j.Logger;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.sql.ConnectionBuilder;
-import java.sql.SQLException;
 
 @Plugin(
         id = "velocity_auth",

@@ -18,6 +18,7 @@ public class PlayerSession implements Session<PlayerSession>, Cancelable, Verifi
 
     private final long playerId;
     private final Player player;
+
     protected PlayerSession(Player player) {
         this.player = player;
         try {

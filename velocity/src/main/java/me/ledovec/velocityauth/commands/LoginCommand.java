@@ -8,6 +8,7 @@ import me.ledovec.velocityauth.VelocityAuth;
 import me.ledovec.velocityauth.constants.Strings;
 import me.ledovec.velocityauth.constants.Titles;
 import me.ledovec.velocityauth.security.Security;
+import me.ledovec.velocityauth.session.Session;
 import me.ledovec.velocityauth.session.SessionFactory;
 import me.zort.sqllib.SQLDatabaseConnection;
 import me.zort.sqllib.api.data.Row;
@@ -33,26 +34,30 @@ public class LoginCommand implements SimpleCommand {
             if (arguments.length > 0) {
                 String username = player.getUsername();
                 SQLDatabaseConnection resource;
-                try {
-                    resource = VelocityAuth.connectionPool.getResource();
-                    Optional<Row> result = resource.select("secret").from("player_credentials").where().isEqual("player", username).obtainOne();
-                    resource.close();
-                    if (result.isPresent()) {
-                        boolean match = Security.passwordsMatch(arguments[0], result.get().getString("secret"));
-                        if (match) {
-                            player.sendMessage(Component.text(Strings.PREFIX + "§aSuccessfully logged in!"));
-                            Titles.sendRedirectTitle(player);
-                            SessionFactory.getInstance().createPlayerSession(player);
-                            player.createConnectionRequest(proxyServer.getServer("lobby").get()).connect();
+                if (SessionFactory.getInstance().getPlayerSession(player, false) == null) {
+                    try {
+                        resource = VelocityAuth.connectionPool.getResource();
+                        Optional<Row> result = resource.select("secret").from("player_credentials").where().isEqual("player", username).obtainOne();
+                        resource.close();
+                        if (result.isPresent()) {
+                            boolean match = Security.passwordsMatch(arguments[0], result.get().getString("secret"));
+                            if (match) {
+                                player.sendMessage(Component.text(Strings.PREFIX + "§aSuccessfully logged in!"));
+                                Titles.sendRedirectTitle(player);
+                                SessionFactory.getInstance().createPlayerSession(player);
+                                player.createConnectionRequest(proxyServer.getServer("lobby").get()).connect();
+                            } else {
+                                player.sendMessage(Component.text(Strings.PREFIX + "§cIncorrect password!"));
+                            }
                         } else {
-                            player.sendMessage(Component.text(Strings.PREFIX + "§cIncorrect password!"));
+                            player.sendMessage(Component.text(Strings.PREFIX + "§cYou are not registered."));
+                            player.sendMessage(Component.text("§fUse: §e/register <password> <password>"));
                         }
-                    } else {
-                        player.sendMessage(Component.text(Strings.PREFIX + "§cYou are not registered."));
-                        player.sendMessage(Component.text("§fUse: §e/register <password> <password>"));
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
                     }
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
+                } else {
+                    player.sendMessage(Component.text(Strings.PREFIX + "You are already logged in."));
                 }
             } else {
                 source.sendMessage(Component.text(Strings.PREFIX + "§cIncorrect command usage:"));
