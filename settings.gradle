@@ -1,4 +1,5 @@
 rootProject.name = 'VelocityAuth'
 include 'velocity'
 include 'velocity'
+include 'bukkit'
 

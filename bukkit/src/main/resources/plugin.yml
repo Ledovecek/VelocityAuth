@@ -1,0 +1,5 @@
+name: BukkitAuth
+version: '${version}'
+main: me.ledovec.auth.BukkitAuth
+api-version: 1.19
+authors: [ Ledovec ]
