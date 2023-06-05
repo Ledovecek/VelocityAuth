@@ -38,7 +38,10 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onAuthExpire(AuthSessionExpiredEvent e) {
-        e.cancelLoginSession();
+        boolean isOnline = e.getPlayer().isOnline();
+        if (isOnline) {
+            e.cancelLoginSession();
+        }
     }
 
 }
