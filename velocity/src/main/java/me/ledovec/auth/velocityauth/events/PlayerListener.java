@@ -3,9 +3,12 @@ package me.ledovec.auth.velocityauth.events;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.PostLoginEvent;
+import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.ServerConnection;
 import me.ledovec.auth.velocityauth.VelocityAuth;
 import me.ledovec.auth.velocityauth.constants.Strings;
+import me.ledovec.auth.velocityauth.constants.Titles;
 import me.ledovec.auth.velocityauth.session.PlayerSession;
 import me.ledovec.auth.velocityauth.session.SessionFactory;
 import me.zort.sqllib.SQLDatabaseConnection;
@@ -28,8 +31,10 @@ public class PlayerListener {
             resource.close();
             if (result.isPresent()) {
                 player.sendMessage(Component.text(Strings.PREFIX + "Login using §e/login <password>"));
+                Titles.showLoginTitle(player);
             } else {
                 player.sendMessage(Component.text(Strings.PREFIX + "Register using §e/register <password> <password>"));
+                Titles.showRegisterTitle(player);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -42,6 +47,17 @@ public class PlayerListener {
         if (playerSession != null) {
             playerSession.log();
             SessionFactory.getInstance().cancelPlayerSession(event.getPlayer());
+        }
+        event.getPlayer().clearTitle();
+    }
+
+    @Subscribe
+    public void onChat(PlayerChatEvent e) {
+        Player player = e.getPlayer();
+        if (player.getCurrentServer().isPresent()) {
+            ServerConnection serverConnection = player.getCurrentServer().get();
+            String name = serverConnection.getServerInfo().getName();
+            if (VelocityAuth.authServers.contains(name)) e.setResult(PlayerChatEvent.ChatResult.denied());
         }
     }
 

@@ -10,9 +10,22 @@ import java.time.Duration;
 public final class Titles {
 
     public static void sendRedirectTitle(Player player) {
-        player.sendTitlePart(TitlePart.TITLE, Component.text(" "));
-        player.sendTitlePart(TitlePart.SUBTITLE, Component.text("§7Redirecting.."));
-        player.sendTitlePart(TitlePart.TIMES, Title.Times.times(Duration.ZERO, Duration.ofDays(1), Duration.ZERO));
+        Title.Times times = Title.Times.times(Duration.ZERO, Duration.ofDays(1), Duration.ZERO);
+        Title title = Title.title(Component.text(" "), Component.text("§7Redirecting.."), times);
+        player.showTitle(title);
+    }
+
+    public static void showRegisterTitle(Player player) {
+        Title.Times times = Title.Times.times(Duration.ZERO, Duration.ofDays(1), Duration.ZERO);
+        Title title = Title.title(Component.text(" "), Component.text("§7Use §e/register <password> <password>"), times);
+        player.showTitle(title);
+    }
+
+    public static void showLoginTitle(Player player) {
+        Title.Times times = Title.Times.times(Duration.ZERO, Duration.ofDays(1), Duration.ZERO);
+        Title title = Title.title(Component.text(" "), Component.text("§7Use §e/login <password>"), times);
+        player.showTitle(title);
+        System.out.println("twl");
     }
 
 }
