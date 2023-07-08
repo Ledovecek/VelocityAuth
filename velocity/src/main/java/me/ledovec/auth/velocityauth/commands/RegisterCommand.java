@@ -14,8 +14,11 @@ import me.zort.sqllib.api.data.QueryResult;
 import me.zort.sqllib.api.data.Row;
 import net.kyori.adventure.text.Component;
 
+import java.security.SecureRandom;
 import java.sql.SQLException;
+import java.util.Base64;
 import java.util.Optional;
+import java.util.Random;
 
 public class RegisterCommand implements SimpleCommand {
 
@@ -39,15 +42,20 @@ public class RegisterCommand implements SimpleCommand {
                         resource = VelocityAuth.connectionPool.getResource();
                         Optional<Row> result = resource.select("id").from("player_credentials").where().isEqual("player", player.getUsername()).obtainOne();
                         if (result.isEmpty()) {
-                            String secret = Security.hashPassword(arguments[0]);
-                            QueryResult execute = resource.insert().into("player_credentials", "player", "secret", "reg_ip")
-                                    .values(player.getUsername(), secret, ip).execute();
+                            SecureRandom random = new SecureRandom();
+                            byte[] salt = new byte[16];
+                            random.nextBytes(salt);
+                            String saltString = Base64.getEncoder().encodeToString(salt);
+                            String secret = Security.hashPassword(arguments[0], saltString);
+                            QueryResult execute = resource.insert().into("player_credentials", "player", "secret", "reg_ip", "salt")
+                                    .values(player.getUsername(), secret, ip, saltString).execute();
                             resource.close();
                             if (execute.isSuccessful()) {
                                 source.sendMessage(Component.text(Strings.PREFIX + "§aYou have been successfully registered."));
                                 Titles.sendRedirectTitle(player);
                                 SessionFactory.getInstance().createPlayerSession(player);
-                                player.createConnectionRequest(proxyServer.getServer("lobby").get()).connect();
+                                String randomLobby = VelocityAuth.lobbyServers.get(new Random().nextInt(VelocityAuth.lobbyServers.size()));
+                                player.createConnectionRequest(proxyServer.getServer(randomLobby).get()).connect();
                             }
                         } else {
                             player.sendMessage(Component.text(Strings.PREFIX + "You are already registered."));

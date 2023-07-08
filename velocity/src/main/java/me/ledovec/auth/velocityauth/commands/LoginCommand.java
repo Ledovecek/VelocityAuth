@@ -15,6 +15,7 @@ import net.kyori.adventure.text.Component;
 
 import java.sql.SQLException;
 import java.util.Optional;
+import java.util.Random;
 
 public class LoginCommand implements SimpleCommand {
 
@@ -36,15 +37,16 @@ public class LoginCommand implements SimpleCommand {
                 if (SessionFactory.getInstance().getPlayerSession(player, false) == null) {
                     try {
                         resource = VelocityAuth.connectionPool.getResource();
-                        Optional<Row> result = resource.select("secret").from("player_credentials").where().isEqual("player", username).obtainOne();
+                        Optional<Row> result = resource.select("secret", "salt").from("player_credentials").where().isEqual("player", username).obtainOne();
                         resource.close();
                         if (result.isPresent()) {
-                            boolean match = Security.passwordsMatch(arguments[0], result.get().getString("secret"));
+                            boolean match = Security.passwordsMatch(arguments[0], result.get().getString("secret"), result.get().getString("salt"));
                             if (match) {
                                 player.sendMessage(Component.text(Strings.PREFIX + "§aSuccessfully logged in!"));
                                 Titles.sendRedirectTitle(player);
                                 SessionFactory.getInstance().createPlayerSession(player);
-                                player.createConnectionRequest(proxyServer.getServer("lobby").get()).connect();
+                                String randomLobby = VelocityAuth.lobbyServers.get(new Random().nextInt(VelocityAuth.lobbyServers.size()));
+                                player.createConnectionRequest(proxyServer.getServer(randomLobby).get()).connect();
                             } else {
                                 player.sendMessage(Component.text(Strings.PREFIX + "§cIncorrect password!"));
                             }
