@@ -48,7 +48,7 @@ public class RegisterCommand implements SimpleCommand {
                             String saltString = Base64.getEncoder().encodeToString(salt);
                             String secret = Security.hashPassword(arguments[0], saltString);
                             QueryResult execute = resource.insert().into("player_credentials", "player", "secret", "reg_ip", "salt")
-                                    .values(player.getUsername(), secret, ip, saltString).execute();
+                                    .values(player.getUniqueId().toString(), secret, ip, saltString).execute();
                             resource.close();
                             if (execute.isSuccessful()) {
                                 source.sendMessage(Component.text(Strings.PREFIX + "§aYou have been successfully registered."));

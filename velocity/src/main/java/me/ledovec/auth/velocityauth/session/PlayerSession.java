@@ -24,7 +24,7 @@ public class PlayerSession implements Session<PlayerSession>, Cancelable, Verifi
         this.player = player;
         try {
             SQLDatabaseConnection resource = VelocityAuth.connectionPool.getResource();
-            Optional<Row> result = resource.select("id").from("player_credentials").where().isEqual("player", player.getUsername()).obtainOne();
+            Optional<Row> result = resource.select("id").from("player_credentials").where().isEqual("player", player.getUniqueId().toString()).obtainOne();
             resource.close();
             if (result.isPresent()) playerId = result.get().getLong("id");
             else throw new InvalidPlayerException();
