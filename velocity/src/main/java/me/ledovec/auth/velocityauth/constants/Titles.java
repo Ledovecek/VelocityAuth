@@ -25,7 +25,6 @@ public final class Titles {
         Title.Times times = Title.Times.times(Duration.ZERO, Duration.ofDays(1), Duration.ZERO);
         Title title = Title.title(Component.text(" "), Component.text("§7Use §e/login <password>"), times);
         player.showTitle(title);
-        System.out.println("twl");
     }
 
 }
