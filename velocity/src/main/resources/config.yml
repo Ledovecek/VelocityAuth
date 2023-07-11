@@ -3,3 +3,13 @@ auth_servers:
 
 lobby_servers:
   - "lobby"
+
+mysql:
+  address: "localhost"
+  username: "root"
+  password: ""
+  port: 3306
+  database: "velocity_auth"
+
+security:
+  pepper: ""
