@@ -32,12 +32,11 @@ public class LoginCommand implements SimpleCommand {
         if (source instanceof Player) {
             Player player = (Player) source;
             if (arguments.length > 0) {
-                String username = player.getUsername();
                 SQLDatabaseConnection resource;
                 if (SessionFactory.getInstance().getPlayerSession(player, false) == null) {
                     try {
                         resource = VelocityAuth.connectionPool.getResource();
-                        Optional<Row> result = resource.select("secret", "salt").from("player_credentials").where().isEqual("player", username).obtainOne();
+                        Optional<Row> result = resource.select("secret", "salt").from("player_credentials").where().isEqual("player", player.getUniqueId().toString()).obtainOne();
                         resource.close();
                         if (result.isPresent()) {
                             boolean match = Security.passwordsMatch(arguments[0], result.get().getString("secret"), result.get().getString("salt"));

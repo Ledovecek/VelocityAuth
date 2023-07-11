@@ -27,7 +27,7 @@ public class PlayerListener {
         player.sendMessage(Component.text(Strings.PREFIX + "Successfully established connection with auth server."));
         try {
             SQLDatabaseConnection resource = VelocityAuth.connectionPool.getResource();
-            Optional<Row> result = resource.select("id").from("player_credentials").where().isEqual("player", player.getUsername()).obtainOne();
+            Optional<Row> result = resource.select("id").from("player_credentials").where().isEqual("player", player.getUniqueId().toString()).obtainOne();
             resource.close();
             if (result.isPresent()) {
                 player.sendMessage(Component.text(Strings.PREFIX + "Login using §e/login <password>"));

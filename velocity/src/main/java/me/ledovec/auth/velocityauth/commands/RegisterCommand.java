@@ -40,7 +40,7 @@ public class RegisterCommand implements SimpleCommand {
                 if (arguments[0].equals(arguments[1])) {
                     try {
                         resource = VelocityAuth.connectionPool.getResource();
-                        Optional<Row> result = resource.select("id").from("player_credentials").where().isEqual("player", player.getUsername()).obtainOne();
+                        Optional<Row> result = resource.select("id").from("player_credentials").where().isEqual("player", player.getUniqueId().toString()).obtainOne();
                         if (result.isEmpty()) {
                             SecureRandom random = new SecureRandom();
                             byte[] salt = new byte[16];
