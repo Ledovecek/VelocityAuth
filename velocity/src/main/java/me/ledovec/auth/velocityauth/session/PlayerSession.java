@@ -56,7 +56,7 @@ public class PlayerSession implements Session<PlayerSession>, Cancelable, Verifi
 
     @Override
     public PlayerSession create() {
-        long since = Time.getCurrentTime();
+        this.since = Time.getCurrentTime();
         try {
             SQLDatabaseConnection resource = VelocityAuth.connectionPool.getResource();
             QueryResult execute = resource.insert().into("active_sessions", "player_id", "since").values(playerId, since).execute();
