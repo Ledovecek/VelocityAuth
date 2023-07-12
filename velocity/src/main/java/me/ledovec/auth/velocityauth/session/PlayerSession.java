@@ -18,7 +18,10 @@ import java.util.Optional;
 public class PlayerSession implements Session<PlayerSession>, Cancelable, Verifiable, Logable {
 
     private final long playerId;
+
     private final Player player;
+
+    private long since;
 
     protected PlayerSession(Player player) {
         this.player = player;
@@ -53,9 +56,10 @@ public class PlayerSession implements Session<PlayerSession>, Cancelable, Verifi
 
     @Override
     public PlayerSession create() {
+        long since = Time.getCurrentTime();
         try {
             SQLDatabaseConnection resource = VelocityAuth.connectionPool.getResource();
-            QueryResult execute = resource.insert().into("active_sessions", "player_id", "since").values(playerId, Time.getCurrentTime()).execute();
+            QueryResult execute = resource.insert().into("active_sessions", "player_id", "since").values(playerId, since).execute();
             resource.close();
             if (execute.isSuccessful()) return this;
             else throw new CreateSessionException();
@@ -101,6 +105,10 @@ public class PlayerSession implements Session<PlayerSession>, Cancelable, Verifi
 
     public long getPlayerId() {
         return playerId;
+    }
+
+    public long getSince() {
+        return since;
     }
 
 }

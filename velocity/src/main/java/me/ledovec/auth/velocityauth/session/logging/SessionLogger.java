@@ -14,8 +14,8 @@ public class SessionLogger {
         try {
             SQLDatabaseConnection resource = VelocityAuth.connectionPool.getResource();
             resource.insert()
-                    .into("sessions_log", "ip", "session_id", "player_id", "expired")
-                    .values(hostAddress, playerSession.getId(), playerSession.getPlayerId(), Time.getCurrentTime()).execute();
+                    .into("sessions_log", "ip", "session_id", "player_id", "since", "expired")
+                    .values(hostAddress, playerSession.getId(), playerSession.getPlayerId(), playerSession.getSince(), Time.getCurrentTime()).execute();
             resource.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
